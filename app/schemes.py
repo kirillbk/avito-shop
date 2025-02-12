@@ -26,7 +26,7 @@ class coinHistorySchema(BaseModel):
 
 
 class InfoResponse(BaseModel):
-    coins: int
+    coins: NonNegativeInt
     inventory: list[ItemSchema]
     coinHistory: coinHistorySchema
 

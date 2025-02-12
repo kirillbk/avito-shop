@@ -14,5 +14,6 @@ class Settings(BaseSettings):
     postgres_user: str
     postgres_password: str
 
+    debug: bool = False
 
 settings = Settings()
