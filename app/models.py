@@ -13,3 +13,14 @@ class User(Base):
     coins: Mapped[int] = mapped_column(default=1000)
 
     __table_args__ = (CheckConstraint("coins >= 0"),)
+
+
+class Item(Base):
+    __tablename__ = "item"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    type: Mapped[str] = mapped_column(unique=True)
+    price: Mapped[int] 
+    
+    __table_args__ = (CheckConstraint("price >= 0"),)
+
