@@ -3,10 +3,9 @@ from app.config import settings
 from jwt import encode, decode
 
 from datetime import datetime, timedelta, timezone
-from typing import Any
 
 
-def encode_jwt_token(data: Any) -> str:
+def encode_jwt_token(data: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(
         minutes=settings.jwt_token_expire_minutes
     )

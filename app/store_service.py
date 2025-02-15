@@ -17,7 +17,7 @@ class StoreService:
     def __init__(self, user_repository: Annotated[UserRepository, Depends()]):
         self._user = user_repository
 
-    async def auth_user(self, username: str, password: str) -> User:
+    async def auth_user(self, username: str, password: str):
         user = await self._user.get_user(name=username)
         password = sha256(password.encode()).digest()
         password = b64encode(password)
@@ -25,6 +25,5 @@ class StoreService:
             raise UnauthorizedException(f"Bad password for user <{username}>")
         if not user:
             hash = hashpw(password, gensalt()).decode()
-            user = await self._user.add_user(username, hash)  
-
-        return user.id
+            await self._user.add_user(username, hash) 
+        

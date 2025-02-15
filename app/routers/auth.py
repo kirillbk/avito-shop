@@ -14,7 +14,7 @@ router = APIRouter()
 async def auth_user(
     auth_req: AuthRequest, store_service: Annotated[StoreService, Depends()]
 ) -> AuthResponse:
-    user_id = await store_service.auth_user(auth_req.username, auth_req.password)
-    token = encode_jwt_token(user_id)
+    await store_service.auth_user(auth_req.username, auth_req.password)
+    token = encode_jwt_token(auth_req.username)
 
     return AuthResponse(token=token)

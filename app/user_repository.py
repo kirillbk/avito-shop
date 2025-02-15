@@ -32,7 +32,7 @@ class UserRepository:
         self._session.add(user)
 
         try:
-            return await self._session.commit()
+            await self._session.commit()
         except IntegrityError:
             return None
         else:
