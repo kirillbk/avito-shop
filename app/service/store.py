@@ -1,15 +1,15 @@
-from app.exceptions import BadRequestException, UnauthorizedException
-from app.service.repositories.item import ItemRepository
-from app.service.repositories.transfer import TransferRepository
-from app.service.repositories.user_item import UserItemRepository
-from app.service.repositories.user import UserRepository
+from base64 import b64encode
+from hashlib import sha256
+from typing import Annotated, Any
 
 from bcrypt import checkpw, gensalt, hashpw
 from fastapi import Depends
 
-from base64 import b64encode
-from typing import Any, Annotated
-from hashlib import sha256
+from app.exceptions import BadRequestException, UnauthorizedException
+from app.service.repositories.item import ItemRepository
+from app.service.repositories.transfer import TransferRepository
+from app.service.repositories.user import UserRepository
+from app.service.repositories.user_item import UserItemRepository
 
 
 class StoreService:
@@ -37,8 +37,8 @@ class StoreService:
         if user and not checkpw(password, user.hashed_password.encode()):
             raise UnauthorizedException(f"Bad password for user <{username}>")
         if not user:
-            hash = hashpw(password, gensalt()).decode()
-            await self._user_repo.add(username, hash)
+            pwd_hash = hashpw(password, gensalt()).decode()
+            await self._user_repo.add(username, pwd_hash)
 
     async def buy_item(self, username: str, item_type: str):
         user = await self._user_repo.get(name=username, lock=True)

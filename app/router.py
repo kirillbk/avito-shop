@@ -1,4 +1,9 @@
-from app.auth import encode_jwt_token, JWTBearer
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import Response
+
+from app.auth import JWTBearer, encode_jwt_token
 from app.schemes import (
     AuthRequest,
     AuthResponse,
@@ -8,12 +13,6 @@ from app.schemes import (
     SendCoinRequest,
 )
 from app.service.store import StoreService
-
-from fastapi import APIRouter, Depends, status
-from fastapi.responses import Response
-
-from typing import Annotated
-
 
 router = APIRouter(
     prefix="/api",
@@ -58,7 +57,9 @@ async def get_user_info(
 
 @router.post("/sendCoin", response_class=Response)
 async def send_coin(
-    send_req: SendCoinRequest, user: current_user_dep, store_service: store_service_dep
+    send_req: SendCoinRequest,
+    user: current_user_dep,
+    store_service: store_service_dep,
 ):
     await store_service.send_coin(user, send_req.toUser, send_req.amount)
 

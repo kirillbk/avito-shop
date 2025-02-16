@@ -1,11 +1,11 @@
+from sqlalchemy import select
+
 from app.db.base_repository import BaseRepository
 from app.db.models import Item
 
-from sqlalchemy import select
-
 
 class ItemRepository(BaseRepository):
-    async def get(self, id: int = None, type: str = None) -> Item | None:
+    async def get(self, id: int | None = None, type: str | None = None) -> Item | None:
         if not (id or type):
             return None
 

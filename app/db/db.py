@@ -1,14 +1,13 @@
-from app.config import settings
+from collections.abc import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-    async_sessionmaker,
-    AsyncSession,
-)
 from sqlalchemy import URL
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
-from typing import AsyncGenerator
-
+from app.config import settings
 
 db_url = URL.create(
     drivername="postgresql+asyncpg",

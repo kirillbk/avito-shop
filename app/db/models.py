@@ -40,6 +40,7 @@ class UserItem(Base):
         UniqueConstraint("user_id", "item_id"),
     )
 
+
 class Transfer(Base):
     __tablename__ = "transfer"
 

@@ -1,14 +1,17 @@
-from app.config import settings
-
-from jwt import decode
 from http import HTTPStatus
-from httpx import AsyncClient
+
 import pytest
+from httpx import AsyncClient
+from jwt import decode
+
+from app.config import settings
 
 
 @pytest.mark.anyio
 class TestAuth:
-    async def test_auth_new_user(self, user: dict[str, str], aclient: AsyncClient):
+    async def test_auth_new_user(
+        self, user: dict[str, str], aclient: AsyncClient
+    ):
         resp = await aclient.post("api/auth", json=user)
         data = resp.json()
         token_data = decode(

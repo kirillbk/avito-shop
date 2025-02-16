@@ -1,11 +1,11 @@
-from app.main import app, lifespan
-from app.db.db import engine, get_db
+from collections.abc import AsyncGenerator
 
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from typing import AsyncGenerator
+from app.db.db import engine, get_db
+from app.main import app, lifespan
 
 
 @pytest.fixture(scope="session")
@@ -13,11 +13,8 @@ def anyio_backend():
     return "asyncio"
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def db_test() -> AsyncGenerator[AsyncSession, None]:
-    """
-    Откат изменений БД после каждого теста
-    """
     connection = await engine.connect()
     transaction = await connection.begin()
     session = AsyncSession(bind=connection, expire_on_commit=False)
@@ -29,11 +26,8 @@ async def db_test() -> AsyncGenerator[AsyncSession, None]:
     await connection.close()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def aclient(db_test) -> AsyncGenerator[AsyncClient, None]:
-    """
-    Асинхронный клиент
-    """
     app.dependency_overrides[get_db] = lambda: db_test
 
     async with lifespan(app):

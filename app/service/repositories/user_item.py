@@ -1,16 +1,15 @@
-from app.db.base_repository import BaseRepository
-from app.db.models import Item, UserItem
+from collections.abc import Sequence
 
-from sqlalchemy import select, update, RowMapping
+from sqlalchemy import RowMapping, select, update
 from sqlalchemy.exc import IntegrityError
 
-
-from typing import Sequence
+from app.db.base_repository import BaseRepository
+from app.db.models import Item, UserItem
 
 
 class UserItemRepository(BaseRepository):
     async def get(
-        self, id: int = None, user_id: int = None, item_id=None
+        self, id: int | None = None, user_id: int | None = None, item_id=None
     ) -> UserItem | None:
         if not (id or user_id or item_id):
             return None

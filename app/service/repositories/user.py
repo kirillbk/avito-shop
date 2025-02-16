@@ -1,13 +1,13 @@
-from app.db.base_repository import BaseRepository
-from app.db.models import User
-
 from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
+
+from app.db.base_repository import BaseRepository
+from app.db.models import User
 
 
 class UserRepository(BaseRepository):
     async def get(
-        self, id: int = None, name: str = None, lock: bool = False
+        self, id: int | None = None, name: str | None = None, lock: bool = False
     ) -> User | None:
         if not (id or name):
             return None

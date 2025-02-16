@@ -1,10 +1,10 @@
-from app.db.db import get_db
+from abc import ABC
+from typing import Annotated
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from abc import ABC
-from typing import Annotated
+from app.db.db import get_db
 
 
 class BaseRepository(ABC):

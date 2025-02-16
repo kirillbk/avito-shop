@@ -1,3 +1,9 @@
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException
+
 from app.db.db import engine
 from app.exceptions import (
     http_exception_handler,
@@ -5,12 +11,6 @@ from app.exceptions import (
     system_exception_handler,
 )
 from app.router import router
-
-from fastapi import FastAPI
-from fastapi.exceptions import RequestValidationError
-from starlette.exceptions import HTTPException
-
-from contextlib import asynccontextmanager
 
 
 @asynccontextmanager
