@@ -1,5 +1,5 @@
 from app.main import app, lifespan
-from app.db import engine, get_db
+from app.db.db import engine, get_db
 
 import pytest
 from httpx import AsyncClient, ASGITransport

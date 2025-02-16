@@ -5,29 +5,29 @@ class ErrorResponse(BaseModel):
     errors: str
 
 
-class ItemSchema(BaseModel):
+class UserItemSchema(BaseModel):
     type: str
     quantity: PositiveInt
 
 
-class ReceivedSchema(BaseModel):
+class UserReceivedSchema(BaseModel):
     fromUser: str
     amount: PositiveInt
 
 
-class SentSchema(BaseModel):
+class UserSentSchema(BaseModel):
     toUser: str
     amount: PositiveInt
 
 
 class coinHistorySchema(BaseModel):
-    received: list[ReceivedSchema]
-    sent: list[SentSchema]
+    received: list[UserReceivedSchema]
+    sent: list[UserSentSchema]
 
 
 class InfoResponse(BaseModel):
     coins: NonNegativeInt
-    inventory: list[ItemSchema]
+    inventory: list[UserItemSchema]
     coinHistory: coinHistorySchema
 
 

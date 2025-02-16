@@ -33,3 +33,8 @@ async def request_error_handler(
 class UnauthorizedException(HTTPException):
     def __init__(self, detail: str):
         super().__init__(status.HTTP_401_UNAUTHORIZED, detail)
+
+
+class BadRequestException(HTTPException):
+    def __init__(self, detail: str):
+        super().__init__(status.HTTP_400_BAD_REQUEST, detail)

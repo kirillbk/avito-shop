@@ -1,0 +1,57 @@
+from app.auth import encode_jwt_token, JWTBearer
+from app.schemes import (
+    AuthRequest,
+    AuthResponse,
+    ErrorResponse,
+    InfoResponse,
+    SendCoinRequest,
+)
+from app.service.store import StoreService
+
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import Response
+
+from typing import Annotated
+
+
+router = APIRouter(
+    prefix="/api",
+    tags=["api"],
+    responses={
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorResponse},
+        status.HTTP_401_UNAUTHORIZED: {"model": ErrorResponse},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": ErrorResponse},
+    },
+)
+
+store_service_dep = Annotated[StoreService, Depends()]
+current_user_dep = Annotated[str, Depends(JWTBearer())]
+
+
+@router.post("/auth")
+async def auth_user(
+    auth_req: AuthRequest, store_service: store_service_dep
+) -> AuthResponse:
+    await store_service.auth_user(auth_req.username, auth_req.password)
+    token = encode_jwt_token(auth_req.username)
+
+    return AuthResponse(token=token)
+
+
+@router.get("/info")
+async def get_user_info(
+    user: current_user_dep, store_service: store_service_dep
+) -> InfoResponse:
+    pass
+
+
+@router.post("/sendCoin")
+async def send_coin(send_request: SendCoinRequest, store_service: store_service_dep):
+    pass
+
+
+@router.get("/buy/{item}", response_class=Response)
+async def buy_item(item: str, user: current_user_dep, store_service: store_service_dep):
+    await store_service.buy_item(user, item)
+
+    return Response()

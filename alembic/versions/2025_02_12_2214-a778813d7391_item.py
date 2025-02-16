@@ -5,7 +5,7 @@ Revises: c206f34b7afb
 Create Date: 2025-02-12 22:14:13.571169
 
 """
-from app.models import Item
+from app.db.models import Item
 
 from typing import Sequence, Union
 
