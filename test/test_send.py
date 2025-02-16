@@ -3,6 +3,7 @@ from http import HTTPStatus
 import pytest
 from httpx import AsyncClient
 
+from app.auth import encode_jwt_token
 from app.services.repositories.transfer import TransferRepository
 from app.services.repositories.user import UserRepository
 from test.check_error import check_error
@@ -50,7 +51,6 @@ class TestSend:
         user2: dict[str, str],
         aclient: AsyncClient,
     ):
-
         await aclient.post("api/auth", json=user2)
         resp = await aclient.post(
             "/api/sendCoin",
@@ -60,7 +60,18 @@ class TestSend:
 
         check_error(resp, HTTPStatus.BAD_REQUEST)
 
-    async def test_no_user(
+    async def test_no_from_user(
+        self, user1: dict[str, str], user2: dict[str, str], aclient: AsyncClient
+    ):
+        await aclient.post("api/auth", json=user2)
+        token = encode_jwt_token(user1["username"])
+        resp = await aclient.post(
+            "api/sendCoin", headers={"Authorization": f"bearer {token}"}
+        )
+
+        check_error(resp, HTTPStatus.BAD_REQUEST)
+
+    async def test_no_to_user(
         self,
         auth_header: dict[str, str],
         user2: dict[str, str],

@@ -65,11 +65,23 @@ async def auth_header(user1, aclient) -> dict[str, str]:
 
 
 @pytest.fixture
-async def item(db_test: AsyncSession) -> AsyncGenerator[Item]:
-    item = Item(type="item", price=333)
+async def item(db_test: AsyncSession) -> Item:
+    item = Item(type="xxxx", price=333)
     db_test.add(item)
     await db_test.commit()
     return item
+
+
+@pytest.fixture
+async def items(db_test: AsyncSession) -> list[Item]:
+    items = [
+        Item(type="aaa", price=200),
+        Item(type="bbb", price=100),
+        Item(type="ccc", price=50),
+    ]
+    db_test.add_all(items)
+    await db_test.commit()
+    return items
 
 
 @pytest.fixture

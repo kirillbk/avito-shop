@@ -3,6 +3,7 @@ from http import HTTPStatus
 import pytest
 from httpx import AsyncClient
 
+from app.auth import encode_jwt_token
 from app.services.repositories.user import UserRepository
 from app.services.repositories.user_item import Item, UserItemRepository
 from test.check_error import check_error
@@ -69,4 +70,14 @@ class TestBuy:
             assert resp.status_code == HTTPStatus.OK
 
         resp = await aclient.get(f"api/buy/{item.type}", headers=auth_header)
+        check_error(resp, HTTPStatus.BAD_REQUEST)
+
+    async def test_no_user(
+        self, user1: dict[str, str], item: Item, aclient: AsyncClient
+    ):
+        token = encode_jwt_token(user1["username"])
+        resp = await aclient.get(
+            f"api/buy/{item.type}", headers={"Authorization": f"bearer {token}"}
+        )
+
         check_error(resp, HTTPStatus.BAD_REQUEST)
