@@ -39,3 +39,11 @@ class UserItem(Base):
         CheckConstraint("quantity > 0"),
         UniqueConstraint("user_id", "item_id"),
     )
+
+class Transfer(Base):
+    __tablename__ = "transfer"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    from_user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    to_user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    amount: Mapped[int]

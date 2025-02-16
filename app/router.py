@@ -45,9 +45,13 @@ async def get_user_info(
     pass
 
 
-@router.post("/sendCoin")
-async def send_coin(send_request: SendCoinRequest, store_service: store_service_dep):
-    pass
+@router.post("/sendCoin", response_class=Response)
+async def send_coin(
+    send_req: SendCoinRequest, user: current_user_dep, store_service: store_service_dep
+):
+    await store_service.send_coin(user, send_req.toUser, send_req.amount)
+
+    return Response()
 
 
 @router.get("/buy/{item}", response_class=Response)

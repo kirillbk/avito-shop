@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 
 class UserItemRepository(BaseRepository):
-    async def get_item(
+    async def get(
         self, id: int = None, user_id: int = None, item_id=None
     ) -> UserItem | None:
         if not (id or user_id or item_id):
@@ -22,7 +22,7 @@ class UserItemRepository(BaseRepository):
 
         return await self._session.scalar(stmt)
 
-    async def add_item(self, user_id: int, item_id: int) -> UserItem | None:
+    async def add(self, user_id: int, item_id: int) -> UserItem | None:
         item = UserItem(user_id=user_id, item_id=item_id)
         self._session.add(item)
 

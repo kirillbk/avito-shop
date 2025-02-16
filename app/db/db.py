@@ -24,5 +24,4 @@ session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with session_maker() as session:
-        print("NEW session")
         yield session

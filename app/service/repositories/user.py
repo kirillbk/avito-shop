@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 
 class UserRepository(BaseRepository):
-    async def get_user(
+    async def get(
         self, id: int = None, name: str = None, lock: bool = False
     ) -> User | None:
         if not (id or name):
@@ -22,7 +22,7 @@ class UserRepository(BaseRepository):
 
         return await self._session.scalar(stmt)
 
-    async def add_user(self, name: str, password: str) -> User | None:
+    async def add(self, name: str, password: str) -> User | None:
         user = User(name=name, hashed_password=password)
         self._session.add(user)
 

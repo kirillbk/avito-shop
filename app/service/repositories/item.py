@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 
 class ItemRepository(BaseRepository):
-    async def get_item(self, id: int = None, type: str = None) -> Item | None:
+    async def get(self, id: int = None, type: str = None) -> Item | None:
         if not (id or type):
             return None
 
