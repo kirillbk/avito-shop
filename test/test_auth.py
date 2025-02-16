@@ -5,13 +5,12 @@ from httpx import AsyncClient
 from jwt import decode
 
 from app.config import settings
+from test.check_error import check_error
 
 
 @pytest.mark.anyio
 class TestAuth:
-    async def test_auth_new_user(
-        self, user: dict[str, str], aclient: AsyncClient
-    ):
+    async def test_auth_new_user(self, user: dict[str, str], aclient: AsyncClient):
         resp = await aclient.post("api/auth", json=user)
         data = resp.json()
         token_data = decode(
@@ -37,4 +36,4 @@ class TestAuth:
         user["password"] += "123"
         resp = await aclient.post("api/auth", json=user)
 
-        assert resp.status_code == HTTPStatus.UNAUTHORIZED
+        check_error(resp, HTTPStatus.UNAUTHORIZED)

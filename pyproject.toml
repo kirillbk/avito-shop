@@ -191,7 +191,6 @@ mark-parentheses = false
 
 
 [tool.pytest.ini_options]
-asyncio_mode="auto"
 filterwarnings = [
     "ignore::DeprecationWarning:asyncpg.*:",
     "ignore::DeprecationWarning:pytest_asyncio.plugin.*:",
