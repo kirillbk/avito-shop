@@ -1,17 +1,28 @@
 services:
-  # avito-shop-service:
-  #   container_name: avito-shop-service
-  #   image: dockerhub-flask_live_app:1.0.0
-  #   build: .
-  #   ports:
-  #     - "8080:4000"
-  #   environment:
-  #     - DB_URL=postgresql://postgres:password@db:5432/shop
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   networks:
-  #     - internal
+  avito-shop-service:
+    container_name: avito-shop-service
+    build:
+      context: .
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_TOKEN_EXPIRE_MINUTES: ${JWT_TOKEN_EXPIRE_MINUTES}
+      JWT_ALGORITHM: ${JWT_ALGORITHM}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER} 
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+
+    command: ["bash", "-c", "alembic upgrade head && fastapi run app/main.py --host 0.0.0.0 --port ${SERVER_PORT}"]
+    restart: on-failure
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
   db:
     image: postgres:17.2
     container_name: postgres
