@@ -6,10 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.db import engine, get_db
 from app.main import app, lifespan
-
-from app.service.repositories.user import UserRepository
-from app.service.repositories.user_item import UserItemRepository
-from app.service.repositories.item import Item, ItemRepository
+from app.services.repositories.transfer import TransferRepository
+from app.services.repositories.user import UserRepository
+from app.services.repositories.user_item import Item, UserItemRepository
 
 
 @pytest.fixture(scope="session")
@@ -42,19 +41,27 @@ async def aclient(db_test) -> AsyncGenerator[AsyncClient, None]:
 
 
 @pytest.fixture
-def user() -> dict[str, str]:
+def user1() -> dict[str, str]:
     return {
-        "username": "user",
+        "username": "aaaa",
         "password": "password",
     }
 
 
 @pytest.fixture
-async def auth_header(user, aclient) -> AsyncGenerator[dict[str, str], None]:
-    resp = await aclient.post("api/auth", json=user)
+def user2() -> dict[str, str]:
+    return {
+        "username": "bbbb",
+        "password": "password",
+    }
+
+
+@pytest.fixture
+async def auth_header(user1, aclient) -> dict[str, str]:
+    resp = await aclient.post("api/auth", json=user1)
     token = resp.json()["token"]
 
-    yield {"Authorization": f"bearer {token}"}
+    return {"Authorization": f"bearer {token}"}
 
 
 @pytest.fixture
@@ -76,5 +83,5 @@ def user_item_repo(db_test: AsyncSession) -> UserItemRepository:
 
 
 @pytest.fixture
-def item_repo(db_test: AsyncSession) -> ItemRepository:
-    return ItemRepository(db_test)
+def transfer_repo(db_test: AsyncSession) -> TransferRepository:
+    return TransferRepository(db_test)

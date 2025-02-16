@@ -6,10 +6,10 @@ from bcrypt import checkpw, gensalt, hashpw
 from fastapi import Depends
 
 from app.exceptions import BadRequestException, UnauthorizedException
-from app.service.repositories.item import ItemRepository
-from app.service.repositories.transfer import TransferRepository
-from app.service.repositories.user import UserRepository
-from app.service.repositories.user_item import UserItemRepository
+from app.services.repositories.item import ItemRepository
+from app.services.repositories.transfer import TransferRepository
+from app.services.repositories.user import UserRepository
+from app.services.repositories.user_item import UserItemRepository
 
 
 class StoreService:

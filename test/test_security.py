@@ -1,5 +1,5 @@
+from datetime import UTC, datetime
 from http import HTTPStatus
-from datetime import UTC, datetime, timedelta
 
 import pytest
 from httpx import AsyncClient
@@ -21,11 +21,11 @@ class TestSecurity:
 
         check_error(resp, HTTPStatus.UNAUTHORIZED)
 
-    async def test_token_expired(self, user: dict[str, str], aclient: AsyncClient):
-        await aclient.post("api/auth", json=user)
+    async def test_token_expired(self, user1: dict[str, str], aclient: AsyncClient):
+        await aclient.post("api/auth", json=user1)
 
         token = encode(
-            {"sub": user["username"], "exp": datetime.now(UTC)},
+            {"sub": user1["username"], "exp": datetime.now(UTC)},
             settings.jwt_secret_key,
             settings.jwt_algorithm,
         )

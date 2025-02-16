@@ -12,7 +12,7 @@ from app.schemes import (
     InfoResponse,
     SendCoinRequest,
 )
-from app.service.store import StoreService
+from app.services.store import StoreService
 
 router = APIRouter(
     prefix="/api",

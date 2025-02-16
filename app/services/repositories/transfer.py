@@ -16,7 +16,7 @@ class TransferRepository(BaseRepository):
 
     async def get_received(self, user_id: int) -> Sequence[RowMapping]:
         stmt = select(User.name, Transfer.amount)
-        stmt = stmt.join(User, Transfer.to_user_id == User.id)
+        stmt = stmt.join(User, Transfer.from_user_id == User.id)
         stmt = stmt.where(Transfer.to_user_id == user_id)
 
         res = await self._session.execute(stmt)
@@ -24,7 +24,7 @@ class TransferRepository(BaseRepository):
 
     async def get_sent(self, user_id: int) -> Sequence[RowMapping]:
         stmt = select(User.name, Transfer.amount)
-        stmt = stmt.join(User, Transfer.from_user_id == User.id)
+        stmt = stmt.join(User, Transfer.to_user_id == User.id)
         stmt = stmt.where(Transfer.from_user_id == user_id)
 
         res = await self._session.execute(stmt)

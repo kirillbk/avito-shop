@@ -3,9 +3,8 @@ from http import HTTPStatus
 import pytest
 from httpx import AsyncClient
 
-from app.service.repositories.user import UserRepository
-from app.service.repositories.user_item import Item, UserItemRepository
-
+from app.services.repositories.user import UserRepository
+from app.services.repositories.user_item import Item, UserItemRepository
 from test.check_error import check_error
 
 
@@ -13,7 +12,7 @@ from test.check_error import check_error
 class TestBuy:
     async def test_buy_one(
         self,
-        user: dict[str, str],
+        user1: dict[str, str],
         auth_header: dict[str, str],
         item: Item,
         aclient: AsyncClient,
@@ -23,16 +22,16 @@ class TestBuy:
         resp = await aclient.get(f"api/buy/{item.type}", headers=auth_header)
         assert resp.status_code == HTTPStatus.OK
 
-        user = await user_repo.get(name=user["username"])
-        assert user.coins == 1000 - item.price
+        user1 = await user_repo.get(name=user1["username"])
+        assert user1.coins == 1000 - item.price
 
-        inventory = await user_item_repo.get_inventory(user.id)
+        inventory = await user_item_repo.get_inventory(user1.id)
         assert inventory[0]["type"] == item.type
         assert inventory[0]["quantity"] == 1
 
     async def test_buy_few(
         self,
-        user: dict[str, str],
+        user1: dict[str, str],
         auth_header: dict[str, str],
         item: Item,
         aclient: AsyncClient,
@@ -43,10 +42,10 @@ class TestBuy:
             resp = await aclient.get(f"api/buy/{item.type}", headers=auth_header)
             assert resp.status_code == HTTPStatus.OK
 
-        user = await user_repo.get(name=user["username"])
-        assert user.coins == 1000 - 3 * item.price
+        user1 = await user_repo.get(name=user1["username"])
+        assert user1.coins == 1000 - 3 * item.price
 
-        inventory = await user_item_repo.get_inventory(user.id)
+        inventory = await user_item_repo.get_inventory(user1.id)
         assert inventory[0]["type"] == item.type
         assert inventory[0]["quantity"] == 3
 
