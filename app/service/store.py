@@ -8,7 +8,7 @@ from bcrypt import checkpw, gensalt, hashpw
 from fastapi import Depends
 
 from base64 import b64encode
-from typing import Annotated
+from typing import Any, Annotated
 from hashlib import sha256
 
 
@@ -80,3 +80,20 @@ class StoreService:
         await self._transfer_repo.add(from_user.id, to_user.id, amount)
         await self._user_repo.update_coins(from_user.id, from_user.coins - amount)
         await self._user_repo.update_coins(to_user.id, to_user.coins + amount)
+
+    async def get_user_info(self, username: str) -> dict[str, Any]:
+        user = await self._user_repo.get(name=username, lock=True)
+        if not user:
+            raise BadRequestException(f"User <{username}> doesn't exist")
+
+        inventory = await self._user_item_repo.get_inventory(user.id)
+        received = await self._transfer_repo.get_received(user.id)
+        sent = await self._transfer_repo.get_sent(user.id)
+
+        return {
+            "name": user.name,
+            "coins": user.coins,
+            "inventory": inventory,
+            "received": received,
+            "sent": sent,
+        }

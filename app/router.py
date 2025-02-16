@@ -2,6 +2,7 @@ from app.auth import encode_jwt_token, JWTBearer
 from app.schemes import (
     AuthRequest,
     AuthResponse,
+    CoinHistorySchema,
     ErrorResponse,
     InfoResponse,
     SendCoinRequest,
@@ -42,7 +43,17 @@ async def auth_user(
 async def get_user_info(
     user: current_user_dep, store_service: store_service_dep
 ) -> InfoResponse:
-    pass
+    user_info = await store_service.get_user_info(user)
+
+    resp = InfoResponse(
+        coins=user_info["coins"],
+        inventory=user_info["inventory"],
+        coinHistory=CoinHistorySchema(
+            received=user_info["received"], sent=user_info["sent"]
+        ),
+    )
+
+    return resp
 
 
 @router.post("/sendCoin", response_class=Response)

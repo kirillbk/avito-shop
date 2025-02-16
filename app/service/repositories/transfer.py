@@ -1,7 +1,9 @@
 from app.db.base_repository import BaseRepository
-from app.db.models import Transfer
+from app.db.models import Transfer, User
 
-from sqlalchemy import select
+from sqlalchemy import RowMapping, select
+
+from typing import Sequence
 
 
 class TransferRepository(BaseRepository):
@@ -10,3 +12,19 @@ class TransferRepository(BaseRepository):
         self._session.add(transfer)
 
         await self._session.commit()
+
+    async def get_received(self, user_id: int) -> Sequence[RowMapping]:
+        stmt = select(User.name, Transfer.amount)
+        stmt = stmt.join(User, Transfer.to_user_id == User.id)
+        stmt = stmt.where(Transfer.to_user_id == user_id)
+
+        res = await self._session.execute(stmt)
+        return res.mappings().all()
+
+    async def get_sent(self, user_id: int) -> Sequence[RowMapping]:
+        stmt = select(User.name, Transfer.amount)
+        stmt = stmt.join(User, Transfer.from_user_id == User.id)
+        stmt = stmt.where(Transfer.from_user_id == user_id)
+
+        res = await self._session.execute(stmt)
+        return res.mappings().all()

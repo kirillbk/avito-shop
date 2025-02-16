@@ -11,16 +11,16 @@ class UserItemSchema(BaseModel):
 
 
 class UserReceivedSchema(BaseModel):
-    fromUser: str
+    fromUser: str = Field(validation_alias="name")
     amount: PositiveInt
 
 
 class UserSentSchema(BaseModel):
-    toUser: str
+    toUser: str = Field(validation_alias="name")
     amount: PositiveInt
 
 
-class coinHistorySchema(BaseModel):
+class CoinHistorySchema(BaseModel):
     received: list[UserReceivedSchema]
     sent: list[UserSentSchema]
 
@@ -28,7 +28,7 @@ class coinHistorySchema(BaseModel):
 class InfoResponse(BaseModel):
     coins: NonNegativeInt
     inventory: list[UserItemSchema]
-    coinHistory: coinHistorySchema
+    coinHistory: CoinHistorySchema
 
 
 class SendCoinRequest(BaseModel):

@@ -1,8 +1,11 @@
 from app.db.base_repository import BaseRepository
-from app.db.models import UserItem
+from app.db.models import Item, UserItem
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, RowMapping
 from sqlalchemy.exc import IntegrityError
+
+
+from typing import Sequence
 
 
 class UserItemRepository(BaseRepository):
@@ -38,3 +41,10 @@ class UserItemRepository(BaseRepository):
 
         await self._session.execute(stmt)
         await self._session.commit()
+
+    async def get_inventory(self, user_id: int) -> Sequence[RowMapping]:
+        stmt = select(Item.type, UserItem.quantity).join(Item)
+        stmt = stmt.where(UserItem.user_id == user_id)
+
+        res = await self._session.execute(stmt)
+        return res.mappings().all()
