@@ -2,9 +2,12 @@ from collections.abc import AsyncGenerator
 
 import pytest
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import URL
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
-from app.db.db import engine, get_db
+from app.config import settings
+from app.db.db import get_db
+from app.db.models import Base
 from app.main import app, lifespan
 from app.services.repositories.transfer import TransferRepository
 from app.services.repositories.user import UserRepository
@@ -18,6 +21,20 @@ def anyio_backend():
 
 @pytest.fixture
 async def db_test() -> AsyncGenerator[AsyncSession, None]:
+    db_url = URL.create(
+        drivername="postgresql+asyncpg",
+        username=settings.postgres_user,
+        password=settings.postgres_password,
+        host=settings.postgres_host,
+        port=settings.postgres_port,
+        database=settings.postgres_test_db,
+    )
+    engine = create_async_engine(db_url)
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
     connection = await engine.connect()
     transaction = await connection.begin()
     session = AsyncSession(bind=connection, expire_on_commit=False)

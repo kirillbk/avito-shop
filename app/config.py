@@ -5,8 +5,6 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
-    server_port: int
-
     jwt_secret_key: str
     jwt_token_expire_minutes: int
     jwt_algorithm: str
@@ -16,6 +14,7 @@ class Settings(BaseSettings):
     postgres_db: str
     postgres_user: str
     postgres_password: str
+    postgres_test_db: str
 
     debug: bool = False
 
