@@ -3,12 +3,13 @@ from collections.abc import AsyncGenerator
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import URL
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 
 from app.config import settings
 from app.db.db import get_db
 from app.db.models import Base
 from app.main import app, lifespan
+from app.schemes import AuthRequest
 from app.services.repositories.transfer import TransferRepository
 from app.services.repositories.user import UserRepository
 from app.services.repositories.user_item import Item, UserItemRepository
@@ -19,8 +20,8 @@ def anyio_backend():
     return "asyncio"
 
 
-@pytest.fixture
-async def db_test() -> AsyncGenerator[AsyncSession, None]:
+@pytest.fixture(scope="session")
+async def engine() -> AsyncGenerator[AsyncEngine, None]:
     db_url = URL.create(
         drivername="postgresql+asyncpg",
         username=settings.postgres_user,
@@ -30,11 +31,18 @@ async def db_test() -> AsyncGenerator[AsyncSession, None]:
         database=settings.postgres_test_db,
     )
     engine = create_async_engine(db_url)
-
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
+    yield engine
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+
+@pytest.fixture
+async def db_test(engine: AsyncEngine) -> AsyncGenerator[AsyncSession, None]:
     connection = await engine.connect()
     transaction = await connection.begin()
     session = AsyncSession(bind=connection, expire_on_commit=False)
@@ -58,24 +66,28 @@ async def aclient(db_test) -> AsyncGenerator[AsyncClient, None]:
 
 
 @pytest.fixture
-def user1() -> dict[str, str]:
-    return {
-        "username": "aaaa",
-        "password": "password",
-    }
+def username1() -> str:
+    return "aaaa"
 
 
 @pytest.fixture
-def user2() -> dict[str, str]:
-    return {
-        "username": "bbbb",
-        "password": "password",
-    }
+def auth_user1(username1: str) -> AuthRequest:
+    return AuthRequest(username=username1, password="password")
 
 
 @pytest.fixture
-async def auth_header(user1, aclient) -> dict[str, str]:
-    resp = await aclient.post("api/auth", json=user1)
+def username2() -> str:
+    return "bbbb"
+
+
+@pytest.fixture
+def auth_user2(username2: str) -> AuthRequest:
+    return AuthRequest(username=username2, password="password")
+
+
+@pytest.fixture
+async def auth_header(auth_user1: AuthRequest, aclient) -> dict[str, str]:
+    resp = await aclient.post("api/auth", json=auth_user1.model_dump())
     token = resp.json()["token"]
 
     return {"Authorization": f"bearer {token}"}

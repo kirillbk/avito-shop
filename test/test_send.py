@@ -4,6 +4,7 @@ import pytest
 from httpx import AsyncClient
 
 from app.auth import encode_jwt_token
+from app.schemes import AuthRequest
 from app.services.repositories.transfer import TransferRepository
 from app.services.repositories.user import UserRepository
 from test.check_error import check_error
@@ -13,28 +14,25 @@ from test.check_error import check_error
 class TestSend:
     async def test_send(
         self,
-        user1: dict[str, str],
+        username1: str,
         auth_header: dict[str, str],
-        user2: dict[str, str],
+        auth_user2: AuthRequest,
         aclient: AsyncClient,
         user_repo: UserRepository,
         transfer_repo: TransferRepository,
     ):
-        from_name = user1["username"]
-        to_name = user2["username"]
-
-        await aclient.post("api/auth", json=user2)
+        await aclient.post("api/auth", json=auth_user2.model_dump())
         resp = await aclient.post(
             "/api/sendCoin",
-            json={"toUser": to_name, "amount": 333},
+            json={"toUser": auth_user2.username, "amount": 333},
             headers=auth_header,
         )
         assert resp.status_code == HTTPStatus.OK
 
-        from_user = await user_repo.get(name=from_name)
+        from_user = await user_repo.get(name=username1)
         assert from_user.coins == 1000 - 333
 
-        to_user = await user_repo.get(name=to_name)
+        to_user = await user_repo.get(name=auth_user2.username)
         assert to_user.coins == 1000 + 333
 
         sent = await transfer_repo.get_sent(from_user.id)
@@ -48,23 +46,23 @@ class TestSend:
     async def test_no_coins(
         self,
         auth_header: dict[str, str],
-        user2: dict[str, str],
+        auth_user2: AuthRequest,
         aclient: AsyncClient,
     ):
-        await aclient.post("api/auth", json=user2)
+        await aclient.post("api/auth", json=auth_user2.model_dump())
         resp = await aclient.post(
             "/api/sendCoin",
-            json={"toUser": user2["username"], "amount": 3333},
+            json={"toUser": auth_user2.username, "amount": 3333},
             headers=auth_header,
         )
 
         check_error(resp, HTTPStatus.BAD_REQUEST)
 
-    async def test_no_from_user(
-        self, user1: dict[str, str], user2: dict[str, str], aclient: AsyncClient
+    async def test_unauthorized(
+        self, username1: str, auth_user2: AuthRequest, aclient: AsyncClient
     ):
-        await aclient.post("api/auth", json=user2)
-        token = encode_jwt_token({"sub": user1["username"]})
+        await aclient.post("api/auth", json=auth_user2.model_dump())
+        token = encode_jwt_token({"sub": username1})
         resp = await aclient.post(
             "api/sendCoin", headers={"Authorization": f"bearer {token}"}
         )
@@ -74,12 +72,12 @@ class TestSend:
     async def test_no_to_user(
         self,
         auth_header: dict[str, str],
-        user2: dict[str, str],
+        username2: str,
         aclient: AsyncClient,
     ):
         resp = await aclient.post(
             "/api/sendCoin",
-            json={"toUser": user2["username"], "amount": 3333},
+            json={"toUser": username2, "amount": 3333},
             headers=auth_header,
         )
 
