@@ -70,9 +70,9 @@ class TestInfo:
         assert sum(t["amount"] for t in sent) == total_sent
 
     async def test_no_user(self, user1: dict[str, str], aclient: AsyncClient):
-        token = encode_jwt_token(user1["username"])
+        token = encode_jwt_token({"sub": user1["username"]})
         resp = await aclient.get(
             "api/info", headers={"Authorization": f"bearer {token}"}
         )
 
-        check_error(resp, HTTPStatus.BAD_REQUEST)
+        check_error(resp, HTTPStatus.UNAUTHORIZED)

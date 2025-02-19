@@ -22,8 +22,8 @@ class UserRepository(BaseRepository):
 
         return await self._session.scalar(stmt)
 
-    async def add(self, name: str, password: str) -> User | None:
-        user = User(name=name, hashed_password=password)
+    async def add(self, name: str, hashed_pwd: str) -> User | None:
+        user = User(name=name, hashed_password=hashed_pwd)
         self._session.add(user)
 
         try:

@@ -3,7 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import Response
 
-from app.auth import JWTBearer, encode_jwt_token
+from app.auth import encode_jwt_token, get_current_user
+from app.db.models import User
 from app.schemes import (
     AuthRequest,
     AuthResponse,
@@ -24,27 +25,23 @@ router = APIRouter(
     },
 )
 
-store_service_dep = Annotated[StoreService, Depends()]
-current_user_dep = Annotated[str, Depends(JWTBearer())]
+CurrentUser = Annotated[User, Depends(get_current_user)]
+Service = Annotated[StoreService, Depends()]
 
 
 @router.post("/auth")
-async def auth_user(
-    auth_req: AuthRequest, store_service: store_service_dep
-) -> AuthResponse:
+async def auth_user(auth_req: AuthRequest, store_service: Service) -> AuthResponse:
     await store_service.auth_user(auth_req.username, auth_req.password)
-    token = encode_jwt_token(auth_req.username)
+    token = encode_jwt_token({"sub": auth_req.username})
 
     return AuthResponse(token=token)
 
 
 @router.get("/info")
-async def get_user_info(
-    user: current_user_dep, store_service: store_service_dep
-) -> InfoResponse:
+async def get_user_info(user: CurrentUser, store_service: Service) -> InfoResponse:
     user_info = await store_service.get_user_info(user)
 
-    resp = InfoResponse(
+    return InfoResponse(
         coins=user_info["coins"],
         inventory=user_info["inventory"],
         coinHistory=CoinHistorySchema(
@@ -52,14 +49,12 @@ async def get_user_info(
         ),
     )
 
-    return resp
-
 
 @router.post("/sendCoin", response_class=Response)
 async def send_coin(
     send_req: SendCoinRequest,
-    user: current_user_dep,
-    store_service: store_service_dep,
+    user: CurrentUser,
+    store_service: Service,
 ):
     await store_service.send_coin(user, send_req.toUser, send_req.amount)
 
@@ -67,7 +62,7 @@ async def send_coin(
 
 
 @router.get("/buy/{item}", response_class=Response)
-async def buy_item(item: str, user: current_user_dep, store_service: store_service_dep):
+async def buy_item(item: str, user: CurrentUser, store_service: Service):
     await store_service.buy_item(user, item)
 
     return Response()

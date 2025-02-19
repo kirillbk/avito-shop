@@ -75,9 +75,9 @@ class TestBuy:
     async def test_no_user(
         self, user1: dict[str, str], item: Item, aclient: AsyncClient
     ):
-        token = encode_jwt_token(user1["username"])
+        token = encode_jwt_token({"sub": user1["username"]})
         resp = await aclient.get(
             f"api/buy/{item.type}", headers={"Authorization": f"bearer {token}"}
         )
 
-        check_error(resp, HTTPStatus.BAD_REQUEST)
+        check_error(resp, HTTPStatus.UNAUTHORIZED)

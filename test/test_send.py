@@ -64,12 +64,12 @@ class TestSend:
         self, user1: dict[str, str], user2: dict[str, str], aclient: AsyncClient
     ):
         await aclient.post("api/auth", json=user2)
-        token = encode_jwt_token(user1["username"])
+        token = encode_jwt_token({"sub": user1["username"]})
         resp = await aclient.post(
             "api/sendCoin", headers={"Authorization": f"bearer {token}"}
         )
 
-        check_error(resp, HTTPStatus.BAD_REQUEST)
+        check_error(resp, HTTPStatus.UNAUTHORIZED)
 
     async def test_no_to_user(
         self,
